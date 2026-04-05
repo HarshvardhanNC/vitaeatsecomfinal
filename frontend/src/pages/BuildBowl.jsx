@@ -106,7 +106,7 @@ export default function BuildBowl() {
     >
       <div>
         <h4 className="font-bold text-gray-900">{item.name}</h4>
-        <p className="text-sm text-gray-500">+${item.price.toFixed(2)} | {item.cal} cal</p>
+        <p className="text-sm text-gray-500">+₹{item.price.toFixed(2)} | {item.cal} cal</p>
       </div>
       {isSelected && <CheckCircle2 className="text-primary w-6 h-6" />}
     </div>
@@ -205,7 +205,7 @@ export default function BuildBowl() {
 
           <div className="flex justify-between items-center mb-6">
             <span className="text-xl font-bold">Total</span>
-            <span className="text-3xl font-extrabold text-primary">${macros.price.toFixed(2)}</span>
+            <span className="text-3xl font-extrabold text-primary">₹{macros.price.toFixed(2)}</span>
           </div>
 
           <Button variant="primary" size="lg" className="w-full flex justify-center gap-2" onClick={handleAddToCart}>

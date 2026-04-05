@@ -7,13 +7,16 @@ const generateToken = require('../utils/generateToken');
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    console.log(`Registration attempt for: ${email}`);
 
     const userExists = await User.findOne({ email });
 
     if (userExists) {
+      console.log(`Registration failed: User ${email} already exists`);
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    console.log(`Creating user: ${email}...`);
     const user = await User.create({
       name,
       email,
@@ -21,6 +24,7 @@ const registerUser = async (req, res) => {
     });
 
     if (user) {
+      console.log(`User ${email} created successfully!`);
       res.status(201).json({
         _id: user._id,
         name: user.name,
@@ -29,9 +33,11 @@ const registerUser = async (req, res) => {
         token: generateToken(user._id),
       });
     } else {
+      console.log(`Registration failed: Invalid user data for ${email}`);
       res.status(400).json({ message: 'Invalid user data' });
     }
   } catch (error) {
+    console.error(`Registration Error for ${req.body.email}:`, error.message);
     res.status(500).json({ message: error.message });
   }
 };

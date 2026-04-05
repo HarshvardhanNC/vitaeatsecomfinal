@@ -23,6 +23,8 @@ export default function Home() {
           { _id: '64a2f8b5f3d4b6c8a291f0c1', name: 'Grilled Salmon Bowl', calories: 420, price: 14.99, protein: 35, category: 'High Protein', image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&q=80&w=800' },
           { _id: '64a2f8b5f3d4b6c8a291f0c2', name: 'High-Protein Quinoa Salad', calories: 380, price: 11.50, protein: 22, category: 'Weight Loss', image: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&q=80&w=800' },
           { _id: '64a2f8b5f3d4b6c8a291f0c3', name: 'Teriyaki Chicken & Broccoli', calories: 510, price: 13.00, protein: 40, category: 'High Protein', image: 'https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&q=80&w=800' },
+          { _id: '64a2f8b5f3d4b6c8a291f011', name: 'Garlic Herb Chicken Rice Bowl', calories: 440, price: 13.99, protein: 37, category: 'High Protein', image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&q=80&w=800' },
+          { _id: '64a2f8b5f3d4b6c8a291f014', name: 'Lemon Pepper Fish & Greens', calories: 360, price: 14.25, protein: 33, category: 'Weight Loss', image: 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&q=80&w=800' },
         ];
         setFeaturedMeals(fallbackMeals);
       }

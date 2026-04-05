@@ -87,11 +87,11 @@ export default function Subscription() {
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
                 <p className="text-gray-500 text-sm mb-6">{plan.desc}</p>
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-5xl font-extrabold text-gray-900">${plan.price.toString().split('.')[0]}</span>
+                  <span className="text-5xl font-extrabold text-gray-900">₹{plan.price.toString().split('.')[0]}</span>
                   <span className="text-xl font-bold text-gray-500">.{plan.price.toString().split('.')[1]}</span>
                 </div>
                 <p className="text-sm text-primary font-semibold mt-2">
-                  ${(plan.price / plan.meals).toFixed(2)} per meal
+                  ₹{(plan.price / plan.meals).toFixed(2)} per meal
                 </p>
               </div>
 

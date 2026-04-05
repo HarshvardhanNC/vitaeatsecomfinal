@@ -28,7 +28,7 @@ export default function MealCard({ meal, onAddToCart }) {
       <div className="p-5 flex flex-col flex-grow">
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-bold text-lg text-gray-900 leading-tight block">{name}</h3>
-          <span className="font-bold text-lg text-primary">${price}</span>
+          <span className="font-bold text-lg text-primary">₹{price}</span>
         </div>
         
         <div className="flex items-center text-sm text-gray-500 mb-5 gap-1.5">

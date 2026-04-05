@@ -26,6 +26,21 @@ const importData = async () => {
       role: 'admin'
     });
 
+    // Add requested users
+    await User.create({
+      name: 'HARSH',
+      email: 'harsh@gmail.com',
+      password: '123',
+      role: 'user'
+    });
+
+    await User.create({
+      name: 'OM',
+      email: 'om@gmail.com',
+      password: '123',
+      role: 'user'
+    });
+
     await Meal.insertMany(meals);
 
     console.log('Data Imported!');

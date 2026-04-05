@@ -53,14 +53,14 @@ const Cart = () => {
                   <div className="flex flex-col">
                     <h3 className="font-bold text-lg text-gray-900 mb-1">{meal.name}</h3>
                     <p className="text-gray-500 font-medium">
-                      <span className="text-primary">${meal.price?.toFixed(2)}</span> x {item.quantity}
+                      <span className="text-primary">₹{meal.price?.toFixed(2)}</span> x {item.quantity}
                     </p>
                   </div>
                 </div>
                 
                 <div className="flex items-center justify-between w-full sm:w-auto gap-8">
                   <span className="font-bold text-xl text-gray-900">
-                    ${((meal.price || 0) * item.quantity).toFixed(2)}
+                    ₹{((meal.price || 0) * item.quantity).toFixed(2)}
                   </span>
                   <button 
                     onClick={() => removeFromCart(item._id)}
@@ -84,17 +84,17 @@ const Cart = () => {
           <div className="flex flex-col gap-4 mb-6 text-lg">
             <div className="flex justify-between text-gray-600">
               <span>Subtotal</span>
-              <span className="font-semibold text-gray-900">${subtotal.toFixed(2)}</span>
+              <span className="font-semibold text-gray-900">₹{subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-gray-600">
               <span>Delivery</span>
-              <span className="font-semibold text-gray-900">$5.00</span>
+              <span className="font-semibold text-gray-900">₹5.00</span>
             </div>
           </div>
           
           <div className="flex justify-between items-center mt-6 pt-6 border-t border-gray-100 mb-8">
             <span className="text-xl font-bold text-gray-900">Total</span>
-            <span className="text-3xl font-extrabold text-primary">${(subtotal + 5).toFixed(2)}</span>
+            <span className="text-3xl font-extrabold text-primary">₹{(subtotal + 5).toFixed(2)}</span>
           </div>
           
           <Button 

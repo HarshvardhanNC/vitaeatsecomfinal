@@ -78,6 +78,78 @@ const meals = [
     protein: 38,
     category: 'High Protein',
     image: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    name: 'Garlic Herb Chicken Rice Bowl',
+    calories: 440,
+    price: 13.99,
+    protein: 37,
+    category: 'High Protein',
+    image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    name: 'Steak Fajita Power Bowl',
+    calories: 520,
+    price: 15.25,
+    protein: 41,
+    category: 'High Protein',
+    image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    name: 'Cottage Cheese Protein Wrap',
+    calories: 390,
+    price: 11.99,
+    protein: 30,
+    category: 'High Protein',
+    image: 'https://images.unsplash.com/photo-1539252554453-80ab65ce3586?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    name: 'Lemon Pepper Fish & Greens',
+    calories: 360,
+    price: 14.25,
+    protein: 33,
+    category: 'Weight Loss',
+    image: 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    name: 'Roasted Veggie Couscous Bowl',
+    calories: 310,
+    price: 10.75,
+    protein: 13,
+    category: 'Weight Loss',
+    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    name: 'Paneer Tikka Salad Box',
+    calories: 330,
+    price: 12.50,
+    protein: 24,
+    category: 'Weight Loss',
+    image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    name: 'Overnight Oats Berry Cup',
+    calories: 240,
+    price: 6.99,
+    protein: 11,
+    category: 'Snacks',
+    image: 'https://images.unsplash.com/photo-1517673400267-0251440c45dc?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    name: 'Dark Chocolate Nut Clusters',
+    calories: 190,
+    price: 5.99,
+    protein: 7,
+    category: 'Snacks',
+    image: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    name: 'Apple Cinnamon Greek Yogurt Pot',
+    calories: 230,
+    price: 6.75,
+    protein: 15,
+    category: 'Snacks',
+    image: 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?auto=format&fit=crop&q=80&w=800'
   }
 ];
 

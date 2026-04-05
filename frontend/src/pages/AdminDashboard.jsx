@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { 
   Users, 
   ShoppingBag, 
-  DollarSign, 
+  IndianRupee, 
   TrendingUp, 
   Package, 
   Database, 
@@ -77,7 +77,7 @@ const AdminDashboard = () => {
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-bl-[100%] transition-all group-hover:scale-110"></div>
             <div className="relative z-10">
                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6">
-                 <DollarSign size={24} className="text-white" />
+                 <IndianRupee size={24} className="text-white" />
                </div>
                <h3 className="text-white/80 font-black text-xs uppercase tracking-widest mb-1">Gross Revenue</h3>
                <p className="text-4xl font-black">₹{stats.totalRevenue.toLocaleString()}</p>

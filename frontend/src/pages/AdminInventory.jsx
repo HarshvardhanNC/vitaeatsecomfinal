@@ -1,14 +1,26 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
-import { PackagePlus, Edit2, Trash2, Tag, DollarSign, Activity, Image as ImageIcon, Box } from 'lucide-react';
+import { PackagePlus, Edit2, Trash2, Tag, IndianRupee, Activity, Image as ImageIcon, Box } from 'lucide-react';
 import Button from '../components/Button';
 
 const AdminInventory = () => {
   const [meals, setMeals] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ _id: null, name: '', price: '', calories: '', stock: '', image: '', protein: '', carbs: '', fats: '', dietTags: '', ingredients: '', oilType: 'Standard', sugarLevel: 'medium' });
+  const [formData, setFormData] = useState({ _id: null, name: '', price: '', calories: '', stock: '', image: '', protein: '', carbs: '', fats: '', dietTags: '', ingredients: '', category: 'All', oilType: 'Standard', sugarLevel: 'medium' });
+  const [saveMessage, setSaveMessage] = useState('');
   const { user } = useContext(AuthContext);
+
+  const categoryOptions = ['All', 'High Protein', 'Weight Loss', 'Snacks'];
+
+  const normalizeMealForForm = (meal) => ({
+    ...meal,
+    dietTags: Array.isArray(meal.dietTags) ? meal.dietTags.join(', ') : meal.dietTags || '',
+    ingredients: Array.isArray(meal.ingredients) ? meal.ingredients.join(', ') : meal.ingredients || '',
+    category: meal.category || 'All',
+    oilType: meal.oilType || 'Standard',
+    sugarLevel: meal.sugarLevel || 'medium'
+  });
 
   const fetchMeals = async () => {
     try {
@@ -24,13 +36,14 @@ const AdminInventory = () => {
   }, []);
 
   const handleEdit = (meal) => {
-    setFormData(meal);
+    setSaveMessage('');
+    setFormData(normalizeMealForForm(meal));
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const resetForm = () => {
-    setFormData({ _id: null, name: '', price: '', calories: '', stock: '', image: '', protein: '', carbs: '', fats: '', dietTags: '', ingredients: '', oilType: 'Standard', sugarLevel: 'medium' });
+    setFormData({ _id: null, name: '', price: '', calories: '', stock: '', image: '', protein: '', carbs: '', fats: '', dietTags: '', ingredients: '', category: 'All', oilType: 'Standard', sugarLevel: 'medium' });
     setShowForm(false);
   };
 
@@ -41,8 +54,8 @@ const AdminInventory = () => {
       
       const payload = {
         ...formData,
-        dietTags: typeof formData.dietTags === 'string' ? formData.dietTags.split(',').map(s=>s.trim()) : formData.dietTags,
-        ingredients: typeof formData.ingredients === 'string' ? formData.ingredients.split(',').map(s=>s.trim()) : formData.ingredients
+        dietTags: typeof formData.dietTags === 'string' ? formData.dietTags.split(',').map((s) => s.trim()).filter(Boolean) : formData.dietTags,
+        ingredients: typeof formData.ingredients === 'string' ? formData.ingredients.split(',').map((s) => s.trim()).filter(Boolean) : formData.ingredients
       };
 
       if (formData._id) {
@@ -50,11 +63,12 @@ const AdminInventory = () => {
       } else {
         await axios.post('/api/meals', payload, config);
       }
-      fetchMeals();
+      await fetchMeals();
+      setSaveMessage('Saved to the database.');
       resetForm();
     } catch (error) {
       console.error(error);
-      alert('Error saving meal');
+      alert(error.response?.data?.message || 'Error saving meal');
     }
   };
 
@@ -79,12 +93,21 @@ const AdminInventory = () => {
         </div>
         <Button 
           variant={showForm ? "outline" : "primary"} 
-          onClick={() => { showForm ? resetForm() : setShowForm(true) }}
+          onClick={() => {
+            setSaveMessage('');
+            showForm ? resetForm() : setShowForm(true);
+          }}
           className="flex items-center gap-2"
         >
           {showForm ? 'Cancel Creation' : <><PackagePlus size={20} /> New Product</>}
         </Button>
       </div>
+
+      {saveMessage && (
+        <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-bold text-primary">
+          {saveMessage}
+        </div>
+      )}
 
       {showForm && (
         <div className="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 p-8 sm:p-10 border border-gray-100 mb-12 relative overflow-hidden transition-all">
@@ -110,7 +133,7 @@ const AdminInventory = () => {
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Price (₹)</label>
                   <div className="relative flex items-center group">
-                    <DollarSign size={18} className="absolute left-4 text-gray-400 group-focus-within:text-primary transition-colors" />
+                    <IndianRupee size={18} className="absolute left-4 text-gray-400 group-focus-within:text-primary transition-colors" />
                     <input type="number" step="0.01" className="w-full pl-11 pr-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all font-medium" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} placeholder="450.00" required />
                   </div>
                 </div>
@@ -156,7 +179,7 @@ const AdminInventory = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Diet Tags (CSV)</label>
                   <input type="text" className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all font-medium" value={formData.dietTags} onChange={e => setFormData({...formData, dietTags: e.target.value})} placeholder="Vegan, Gluten-Free" />
@@ -164,6 +187,14 @@ const AdminInventory = () => {
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Ingredients (CSV)</label>
                   <input type="text" className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all font-medium" value={formData.ingredients} onChange={e => setFormData({...formData, ingredients: e.target.value})} placeholder="Kale, Quinoa, Tofu" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Menu Category</label>
+                  <select className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all font-medium" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
+                    {categoryOptions.map((category) => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -212,6 +243,7 @@ const AdminInventory = () => {
                   <td className="px-8 py-4">
                     <div className="font-bold text-gray-900 text-lg mb-0.5">{meal.name}</div>
                     <div className="text-xs text-gray-400 font-mono">#{meal._id.substring(meal._id.length - 6).toUpperCase()}</div>
+                    <div className="text-xs text-primary font-semibold mt-1">{meal.category || 'All'}</div>
                   </td>
                   <td className="px-8 py-4">
                     <div className="text-primary font-extrabold text-lg">₹{meal.price.toFixed(2)}</div>
