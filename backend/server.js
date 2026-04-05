@@ -21,9 +21,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Enable CORS
+// Enable CORS (Dynamic for local development and Vercel/Render)
 app.use(cors({
-  origin: "https://vitaeatsecomfinal.vercel.app",
+  origin: [
+    "https://vitaeatsecomfinal.vercel.app", 
+    process.env.FRONTEND_URL,
+    "http://localhost:5173",
+    "http://localhost:3000"
+  ].filter(Boolean),
   credentials: true
 }));
 

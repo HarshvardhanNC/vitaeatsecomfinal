@@ -5,7 +5,7 @@ import axios from 'axios';
 const AuthContext = createContext();
 const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
   ? '' 
-  : 'https://vitaeatsbackend.onrender.com';
+  : (import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || 'https://vitaeatsecomfinal.onrender.com');
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
