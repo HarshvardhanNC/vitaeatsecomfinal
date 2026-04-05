@@ -147,7 +147,7 @@ export default function Home() {
             <img 
               src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800" 
               alt="Fresh salad bowl" 
-              className="relative z-10 w-full max-w-lg mx-auto rounded-full shadow-2xl border-white border-8 hover:rotate-3 transition-transform duration-700"
+              className="relative z-10 w-full max-w-lg mx-auto rounded-full shadow-2xl border-white border-8 animate-[spin_40s_linear_infinite]"
             />
           </div>
         </div>
