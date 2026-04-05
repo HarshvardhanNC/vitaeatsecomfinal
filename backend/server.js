@@ -22,7 +22,10 @@ app.use((req, res, next) => {
 });
 
 // Enable CORS
-app.use(cors());
+app.use(cors({
+  origin: "https://vitaeatsecomfinal.vercel.app",
+  credentials: true
+}));
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
