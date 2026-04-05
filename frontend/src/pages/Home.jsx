@@ -270,9 +270,9 @@ export default function Home() {
             className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto"
           >
             {user ? (
-              <div className="flex-1 flex items-center justify-between px-6 py-4 rounded-full bg-white/20 text-white font-bold border border-white/30 backdrop-blur-sm">
-                <span className="flex items-center gap-2"><Mail size={18} /> {user.email}</span>
-                <span className={`text-xs uppercase tracking-widest px-2 py-1 rounded-md ${isSubscribed ? 'bg-green-400 text-green-900' : 'bg-white/20'}`}>
+              <div className="flex-1 flex items-center justify-between px-6 py-4 rounded-full bg-white text-gray-900 font-bold shadow-inner">
+                <span className="flex items-center gap-2 truncate max-w-[180px] sm:max-w-xs"><Mail className="text-gray-400 flex-shrink-0" size={18} /> <span className="truncate">{user.email}</span></span>
+                <span className={`text-[10px] sm:text-xs uppercase font-extrabold tracking-widest px-3 py-1.5 flex-shrink-0 rounded-full ${isSubscribed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                   {isSubscribed ? 'Subscribed' : 'Not Subscribed'}
                 </span>
               </div>
