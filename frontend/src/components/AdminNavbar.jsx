@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
-import { LogOut, Menu as MenuIcon, X, LayoutDashboard, Package, Database } from 'lucide-react';
+import { LogOut, Menu as MenuIcon, X, LayoutDashboard, Package, Database, Truck } from 'lucide-react';
 import Button from './Button';
 
 export default function AdminNavbar() {
@@ -13,6 +13,7 @@ export default function AdminNavbar() {
     { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
     { name: 'Order Logs', path: '/admin/orders', icon: Package },
     { name: 'Inventory DB', path: '/admin/inventory', icon: Database },
+    { name: 'Suppliers', path: '/admin/suppliers', icon: Truck },
   ];
 
   const isActive = (path) => location.pathname === path;

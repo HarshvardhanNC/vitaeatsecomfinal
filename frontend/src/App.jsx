@@ -18,6 +18,7 @@ import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminOrders from './pages/AdminOrders';
 import AdminInventory from './pages/AdminInventory';
+import AdminSuppliers from './pages/AdminSuppliers';
 import AuthContext, { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
@@ -59,6 +60,7 @@ function AppLayout() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/inventory" element={<AdminInventory />} />
+          <Route path="/admin/suppliers" element={<AdminSuppliers />} />
         </Routes>
       </main>
 
