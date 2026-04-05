@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Leaf } from 'lucide-react';
 
 export default function Footer() {
@@ -15,7 +16,7 @@ export default function Footer() {
         <div className="flex gap-6 text-sm text-gray-500">
           <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
           <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
-          <a href="#" className="hover:text-primary transition-colors">Contact Us</a>
+          <Link to="/contact" className="hover:text-primary transition-colors font-medium">Contact &amp; Support</Link>
         </div>
       </div>
       <div className="text-center text-gray-400 text-xs mt-8">
@@ -24,3 +25,4 @@ export default function Footer() {
     </footer>
   );
 }
+

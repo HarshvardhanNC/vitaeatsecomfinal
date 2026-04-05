@@ -12,6 +12,23 @@ const registerUser = async (req, res) => {
     const userExists = await User.findOne({ email });
 
     if (userExists) {
+      if (userExists.role === 'guest') {
+        // Upgrade guest subscriber to full registered account
+        console.log(`Upgrading guest subscriber ${email} to full user...`);
+        userExists.name = name;
+        userExists.password = password; // Will be hashed by pre-save
+        userExists.role = 'user';
+        const upgradedUser = await userExists.save();
+
+        return res.status(201).json({
+          _id: upgradedUser._id,
+          name: upgradedUser.name,
+          email: upgradedUser.email,
+          role: upgradedUser.role,
+          token: generateToken(upgradedUser._id),
+        });
+      }
+      
       console.log(`Registration failed: User ${email} already exists`);
       return res.status(400).json({ message: 'User already exists' });
     }

@@ -17,8 +17,12 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin'],
+    enum: ['user', 'admin', 'guest'],
     default: 'user'
+  },
+  isSubscribedToNewsletter: {
+    type: Boolean,
+    default: false
   },
   healthProfile: {
     age: { type: Number },

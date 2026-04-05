@@ -94,4 +94,38 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-module.exports = { updateHealthProfile, getNutritionDashboard, getUserProfile };
+// @desc    Toggle Newsletter Subscription
+// @route   POST /api/users/newsletter
+// @access  Public
+const toggleNewsletterSubscription = async (req, res) => {
+  try {
+    const { email, subscribe } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email required' });
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      if (!subscribe) return res.status(400).json({ message: 'Not subscribed.' });
+      
+      // Guest creating newsletter sub
+      user = await User.create({
+        name: email.split('@')[0],
+        email,
+        password: Math.random().toString(36).slice(-8), // Dummy random password
+        role: 'guest',
+        isSubscribedToNewsletter: true
+      });
+      return res.json({ message: 'Subscribed successfully!' });
+    }
+
+    // Existing user
+    user.isSubscribedToNewsletter = subscribe;
+    await user.save();
+
+    res.json({ message: subscribe ? 'Subscribed successfully!' : 'Unsubscribed successfully.' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { updateHealthProfile, getNutritionDashboard, getUserProfile, toggleNewsletterSubscription };

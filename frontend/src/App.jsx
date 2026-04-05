@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import AdminNavbar from './components/AdminNavbar';
@@ -14,13 +14,25 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Invoice from './pages/Invoice';
 import UserProfile from './pages/UserProfile';
+import Contact from './pages/Contact';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminOrders from './pages/AdminOrders';
 import AdminInventory from './pages/AdminInventory';
 import AdminSuppliers from './pages/AdminSuppliers';
+import AdminUsers from './pages/AdminUsers';
 import AuthContext, { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 
 function AppLayout() {
   const location = useLocation();
@@ -54,13 +66,16 @@ function AppLayout() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/invoice/:orderId" element={<Invoice />} />
           <Route path="/user/profile" element={<UserProfile />} />
+          <Route path="/contact" element={<Contact />} />
 
           {/* Admin Routes */}
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/inventory" element={<AdminInventory />} />
           <Route path="/admin/suppliers" element={<AdminSuppliers />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
         </Routes>
       </main>
 
@@ -72,6 +87,7 @@ function AppLayout() {
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <AuthProvider>
         <CartProvider>
           <AppLayout />

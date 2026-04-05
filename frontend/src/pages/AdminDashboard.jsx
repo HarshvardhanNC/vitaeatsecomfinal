@@ -87,18 +87,18 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+          <Link to="/admin/users" className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-lg transition-all group">
              <div className="flex justify-between items-start mb-4">
-               <div className="w-12 h-12 bg-accent/10 text-accent rounded-2xl flex items-center justify-center">
+               <div className="w-12 h-12 bg-accent/10 text-accent rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                  <Users size={24} />
                </div>
-               <span className="text-xs font-black text-accent bg-accent/5 px-2 py-1 rounded-lg">LIVE</span>
+               <span className="text-xs font-black text-accent bg-accent/5 px-2 py-1 rounded-lg flex items-center gap-1">VIEW ALL <ArrowRight size={10} /></span>
              </div>
              <div>
                <h3 className="text-gray-500 font-black text-xs uppercase tracking-widest mb-1">Total Clientele</h3>
-               <p className="text-4xl font-black text-gray-900">{stats.usersCount}</p>
+               <p className="text-4xl font-black text-gray-900 group-hover:text-primary transition-colors">{stats.usersCount}</p>
              </div>
-          </div>
+          </Link>
 
           <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
              <div className="flex justify-between items-start mb-4">
