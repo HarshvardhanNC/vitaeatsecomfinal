@@ -77,6 +77,7 @@ const AdminOrders = () => {
                 <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Customer</th>
                 <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Date</th>
                 <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Total Value</th>
+                <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Payment</th>
                 <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Live Status</th>
                 <th className="px-6 py-5 text-right w-32 text-xs font-extrabold text-gray-500 uppercase tracking-wider">Action</th>
               </tr>
@@ -108,6 +109,11 @@ const AdminOrders = () => {
                       <div className="text-gray-900 font-extrabold text-lg">₹{order.totalAmount.toFixed(2)}</div>
                     </td>
                     <td className="px-6 py-4">
+                      <div className={`px-2 py-1 inline-block rounded-md text-xs font-bold uppercase ${order.paymentMethod === 'COD' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
+                        {order.paymentMethod || 'Razorpay'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
                       <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold tracking-wide border ${StatusColor(order.status)}`}>
                         <StatusIcon status={order.status} /> {order.status}
                       </div>
@@ -128,7 +134,7 @@ const AdminOrders = () => {
                   
                   {expandedId === order._id && (
                     <tr className="bg-gray-50/50 border-b-2 border-primary/20">
-                      <td colSpan="7" className="px-8 py-8">
+                      <td colSpan="8" className="px-8 py-8">
                         <div className="bg-white rounded-3xl p-8 border border-gray-200 shadow-sm max-w-4xl">
                           <h4 className="font-extrabold text-gray-900 mb-6 flex items-center gap-2">
                             <MoreVertical size={20} className="text-primary"/> Official Order Manifest
@@ -165,6 +171,23 @@ const AdminOrders = () => {
                                 </div>
                                 
                                 <div>
+                                    <h5 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">Payment Security</h5>
+                                    <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-sm font-medium text-gray-700 flex flex-col gap-1">
+                                      <div className="flex justify-between items-center">
+                                        <span>Route</span>
+                                        <span className={`px-2 py-1 rounded-md text-xs font-bold uppercase ${order.paymentMethod === 'COD' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>{order.paymentMethod || 'Razorpay'}</span>
+                                      </div>
+                                      <div className="flex justify-between items-center mt-1">
+                                        <span>Authentication</span>
+                                        <span className={`px-2 py-1 rounded-md text-xs font-bold uppercase ${order.paymentStatus === 'Success' ? 'bg-green-100 text-green-700' : order.paymentStatus === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>{order.paymentStatus || 'Legacy'}</span>
+                                      </div>
+                                      {order.paymentId && (
+                                        <div className="text-xs text-gray-400 mt-2 font-mono break-all border-t border-gray-200 pt-2">{order.paymentId}</div>
+                                      )}
+                                    </div>
+                                </div>
+                                
+                                <div>
                                     <h5 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">Financial Breakdown</h5>
                                     <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex flex-col gap-2">
                                         <div className="flex justify-between text-sm font-bold text-gray-500">
@@ -197,7 +220,7 @@ const AdminOrders = () => {
               ))}
               {orders.length === 0 && (
                 <tr>
-                  <td colSpan="7" className="px-8 py-16 text-center text-gray-400 font-medium">
+                  <td colSpan="8" className="px-8 py-16 text-center text-gray-400 font-medium">
                     No global orders have been injected into the system yet.
                   </td>
                 </tr>

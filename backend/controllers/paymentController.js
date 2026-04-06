@@ -2,13 +2,22 @@ const Order = require('../models/Order');
 const CartItem = require('../models/CartItem');
 const Meal = require('../models/Meal');
 const crypto = require('crypto');
+const Razorpay = require('razorpay');
+
+// Helper to initialize Razorpay (so it gracefully handles missing env vars during test startup)
+const getRazorpayInstance = () => {
+  return new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy_key',
+    key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_secret'
+  });
+};
 
 // @desc    Create Razorpay Order
 // @route   POST /api/payment/create-order
 // @access  Private
 const createRazorpayOrder = async (req, res) => {
   try {
-    const { shippingAddress, couponCode } = req.body;
+    const { shippingAddress, couponCode, paymentMethod } = req.body;
     const cartItems = await CartItem.find({ user: req.user._id }).populate('meal');
     const validCartItems = cartItems.filter(item => item.meal !== null);
 
@@ -80,7 +89,67 @@ const createRazorpayOrder = async (req, res) => {
     
     const totalAmount = subtotal - discountAmount + 40 - walletUsed; 
 
-    // Create a Confirmed Order in DB instantly for prototype
+    // ---- BRANCH: COD (Cash on Delivery) Flow ----
+    if (paymentMethod === 'COD') {
+      const dbOrder = new Order({
+        orderItems,
+        user: req.user._id,
+        totalAmount,
+        discountAmount,
+        walletAmountUsed: walletUsed,
+        shippingAddress,
+        paymentMethod: 'COD',
+        paymentStatus: 'Pending', // Will be collected on delivery
+        status: 'Confirmed'
+      });
+      
+      await dbOrder.save();
+
+      // Side Effects (Execute Instantly)
+      if (walletUsed > 0) {
+        user.walletBalance -= walletUsed;
+        await user.save();
+      }
+
+      for (const item of dbOrder.orderItems) {
+        const dbMeal = await Meal.findById(item.meal);
+        if (dbMeal) {
+          dbMeal.stock -= item.quantity;
+          await dbMeal.save();
+        }
+      }
+
+      await CartItem.deleteMany({ user: req.user._id });
+
+      return res.status(200).json({
+        success: true,
+        dbOrderId: dbOrder._id,
+        paymentMethod: 'COD'
+      });
+    }
+
+    // ---- BRANCH: RAZORPAY Flow ----
+    // Convert totalAmount to smaller currency unit (Paise for INR, cents for USD)
+    const amountInPaise = Math.round(totalAmount * 100);
+
+    // Initialize Razorpay
+    const razorpay = getRazorpayInstance();
+
+    // Setup options for Razorpay Orders API
+    const options = {
+      amount: amountInPaise,
+      currency: "INR",
+      receipt: `receipt_${Date.now()}`
+    };
+
+    // Make Official Razorpay Create Request
+    const razorpayOrder = await razorpay.orders.create(options);
+
+    if (!razorpayOrder) {
+      return res.status(500).json({ message: "Payment Gateway Error. Try again later." });
+    }
+
+    // Pre-create the DB Order awaiting verification
     const dbOrder = new Order({
       orderItems,
       user: req.user._id,
@@ -88,42 +157,22 @@ const createRazorpayOrder = async (req, res) => {
       discountAmount,
       walletAmountUsed: walletUsed,
       shippingAddress,
-      paymentStatus: 'Success',
-      status: 'Confirmed'
+      paymentMethod: 'Razorpay',
+      paymentStatus: 'Pending',
+      status: 'Pending' // Will upgrade to Confirmed after crypto verify
     });
     
     await dbOrder.save();
 
-    // Update Buyer's Wallet (Subtract what was used)
-    if (walletUsed > 0) {
-      user.walletBalance -= walletUsed;
-      await user.save();
-    }
-
-    // Award Referrer Bounty (₹150)
-    if (referrerId) {
-      const referrerUser = await User.findById(referrerId);
-      if (referrerUser) {
-        referrerUser.walletBalance += 150;
-        await referrerUser.save();
-      }
-    }
-
-    // Decrease stock mapping
-    for (const item of dbOrder.orderItems) {
-      const dbMeal = await Meal.findById(item.meal);
-      if (dbMeal) {
-        dbMeal.stock -= item.quantity;
-        await dbMeal.save();
-      }
-    }
-
-    // Clear cart immediately
-    await CartItem.deleteMany({ user: req.user._id });
-
+    // We do NOT deduct cart or wallet yet until payment is verified.
+    
     res.status(200).json({
       success: true,
-      orderId: dbOrder._id
+      razorpayOrderId: razorpayOrder.id,
+      dbOrderId: dbOrder._id,
+      amount: razorpayOrder.amount, // Total in strictly Paise format
+      currency: razorpayOrder.currency,
+      paymentMethod: 'Razorpay'
     });
 
   } catch (error) {
@@ -146,7 +195,7 @@ const verifyPayment = async (req, res) => {
       .digest("hex");
 
     if (razorpay_signature === expectedSign) {
-      // Payment is verified
+      // Payment Authenticated successfully!
       const order = await Order.findById(dbOrderId);
       if (!order) return res.status(404).json({ message: 'Order not found' });
 
@@ -154,6 +203,15 @@ const verifyPayment = async (req, res) => {
       order.paymentId = razorpay_payment_id;
       order.status = 'Confirmed';
       await order.save();
+
+      // Post-Payment Side Effects (Wallet deduction, bounties, stock)
+      const User = require('../models/User');
+      const user = await User.findById(req.user._id);
+
+      if (order.walletAmountUsed > 0) {
+        user.walletBalance -= order.walletAmountUsed;
+        await user.save();
+      }
 
       // Decrease stock mapping
       for (const item of order.orderItems) {

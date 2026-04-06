@@ -78,6 +78,10 @@ const Invoice = () => {
               <CheckCircle size={16} /> {order.paymentStatus === 'Success' ? 'PAID' : order.paymentStatus.toUpperCase()}
             </div>
             {order.paymentId && <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Txn ID: {order.paymentId}</p>}
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-muted)', marginBottom: '0.2rem', marginTop: '1rem' }}>Payment Method:</h3>
+            <p style={{ fontWeight: '700', fontSize: '1.1rem', color: order.paymentMethod === 'COD' ? '#ea580c' : '#2563eb' }}>
+              {order.paymentMethod === 'COD' ? 'Cash On Delivery' : 'Paid Online (Razorpay)'}
+            </p>
           </div>
         </div>
 

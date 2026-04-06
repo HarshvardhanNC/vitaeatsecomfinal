@@ -18,6 +18,7 @@ const Checkout = () => {
   const [discountPercent, setDiscountPercent] = useState(0);
   const [couponMsg, setCouponMsg] = useState('');
   const [walletBalance, setWalletBalance] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState('Razorpay'); // 'Razorpay' or 'COD'
 
   const getMealData = (item) => item.meal || item;
   const subtotal = cartItems.reduce((acc, item) => acc + item.quantity * (getMealData(item).price || 0), 0);
@@ -83,13 +84,59 @@ const Checkout = () => {
       
       const payload = {
         shippingAddress: address,
-        couponCode: couponCode.trim() || null
+        couponCode: couponCode.trim() || null,
+        paymentMethod
       };
       
       const { data } = await axios.post('/api/payment/create-order', payload, config);
       
-      await fetchCart();
-      navigate(`/invoice/${data.orderId}`, { replace: true });
+      if (data.paymentMethod === 'COD') {
+        // Direct Settlement Complete
+        await fetchCart();
+        navigate(`/invoice/${data.dbOrderId}`, { replace: true });
+        return;
+      }
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_dummy_key', // Ensure VITE_RAZORPAY_KEY_ID is in your .env
+        amount: data.amount, 
+        currency: data.currency,
+        name: "VitaEats Premium",
+        description: "Test Transaction Checkout",
+        order_id: data.razorpayOrderId,
+        handler: async function (response) {
+          try {
+             // Verify the Cryptographic Signature against our Backend
+             await axios.post('/api/payment/verify', {
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                dbOrderId: data.dbOrderId
+             }, config);
+             
+             await fetchCart();
+             navigate(`/invoice/${data.dbOrderId}`, { replace: true });
+          } catch (err) {
+             console.error("Verification Error:", err);
+             alert('Payment verification failed. Please contact support.');
+          }
+        },
+        prefill: {
+          name: user.name,
+          email: user.email,
+        },
+        theme: {
+          color: "#22c55e"
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response){
+        alert("Payment Failed. Reason: " + response.error.description);
+      });
+      
+      // Opens the Razorpay UI
+      rzp.open();
 
     } catch (error) {
        console.error(error);
@@ -228,6 +275,27 @@ const Checkout = () => {
               <div className="flex justify-between font-extrabold text-2xl text-gray-900 mt-4 pt-4 border-t border-gray-200">
                 <span>Total</span>
                 <span className="text-primary">₹{totalAmount.toFixed(2)}</span>
+              </div>
+            </div>
+
+            {/* Payment Method Selector */}
+            <div className="mt-6 border-t border-gray-200 pt-6 relative z-10">
+              <h3 className="font-bold text-gray-900 mb-3">Payment Method</h3>
+              <div className="flex flex-col gap-3">
+                <label className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === 'Razorpay' ? 'border-primary bg-primary/5' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
+                  <input type="radio" value="Razorpay" checked={paymentMethod === 'Razorpay'} onChange={(e) => setPaymentMethod(e.target.value)} className="w-5 h-5 text-primary accent-primary" />
+                  <div className="flex flex-col">
+                    <span className="font-bold text-gray-900">Pay Online Securely</span>
+                    <span className="text-xs text-gray-500 font-medium">Razorpay (Cards, UPI, NetBanking)</span>
+                  </div>
+                </label>
+                <label className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === 'COD' ? 'border-primary bg-primary/5' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
+                  <input type="radio" value="COD" checked={paymentMethod === 'COD'} onChange={(e) => setPaymentMethod(e.target.value)} className="w-5 h-5 text-primary accent-primary" />
+                  <div className="flex flex-col">
+                    <span className="font-bold text-gray-900">Cash on Delivery (COD)</span>
+                    <span className="text-xs text-gray-500 font-medium">Pay directly to our delivery partner</span>
+                  </div>
+                </label>
               </div>
             </div>
 
