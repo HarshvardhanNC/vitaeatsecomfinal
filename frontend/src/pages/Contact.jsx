@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, MessageCircle } from 'lucide-react';
 import Button from '../components/Button';
+import axios from 'axios';
 
 const faqs = [
   { q: 'How do I apply a coupon code?', a: 'On the checkout page, enter your coupon code in the "Promo Code" field and click Apply. Valid codes like HEALTHY20 will give you an instant 20% discount.' },
@@ -10,15 +11,23 @@ const faqs = [
 ];
 
 export default function Contact() {
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
+  const [form, setForm] = useState({ name: '', email: '', mobile: '', subject: '', messageText: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real app, this would POST to a backend
-    setSubmitted(true);
-    setForm({ name: '', email: '', subject: '', message: '' });
+    setLoading(true);
+    try {
+      await axios.post('/api/messages', form);
+      setSubmitted(true);
+      setForm({ name: '', email: '', mobile: '', subject: '', messageText: '' });
+    } catch (error) {
+      alert('Failed to send message: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -102,15 +111,27 @@ export default function Contact() {
                     />
                   </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Subject</label>
-                  <input
-                    type="text" required
-                    className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all font-medium"
-                    placeholder="Order issue, coupon query, feedback..."
-                    value={form.subject}
-                    onChange={e => setForm({ ...form, subject: e.target.value })}
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Mobile Number</label>
+                    <input
+                      type="tel" required
+                      className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all font-medium"
+                      placeholder="+91 XXXXXXXXXX"
+                      value={form.mobile}
+                      onChange={e => setForm({ ...form, mobile: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Subject</label>
+                    <input
+                      type="text" required
+                      className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all font-medium"
+                      placeholder="Order issue, coupon query, feedback..."
+                      value={form.subject}
+                      onChange={e => setForm({ ...form, subject: e.target.value })}
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Message</label>
@@ -118,13 +139,13 @@ export default function Contact() {
                     required rows={5}
                     className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all font-medium resize-none"
                     placeholder="Describe your issue or feedback in detail..."
-                    value={form.message}
-                    onChange={e => setForm({ ...form, message: e.target.value })}
+                    value={form.messageText}
+                    onChange={e => setForm({ ...form, messageText: e.target.value })}
                   />
                 </div>
                 <div className="flex justify-end">
-                  <Button type="submit" variant="primary" className="flex items-center gap-2">
-                    <Send size={16} /> Send Message
+                  <Button type="submit" variant="primary" className="flex items-center gap-2" disabled={loading}>
+                    <Send size={16} /> {loading ? 'Sending...' : 'Send Message'}
                   </Button>
                 </div>
               </form>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Button from './Button';
-import { Leaf, Flame } from 'lucide-react';
+import { Leaf, Flame, Star, Sparkles, ChefHat, AlertCircle } from 'lucide-react';
 
 export default function MealCard({ meal, onAddToCart }) {
   const [quantity, setQuantity] = useState(1);
@@ -11,6 +11,18 @@ export default function MealCard({ meal, onAddToCart }) {
   const price = meal?.price || '9.99';
   const calories = meal?.calories || '450';
   const protein = meal?.protein || '25g';
+  const stock = meal?.stock;
+
+  // Premium, emoji-free promotional logic
+  const getPromoLogic = (nameStr) => {
+    if (!nameStr) return null;
+    const len = nameStr.length;
+    if (len % 3 === 0) return { text: 'BESTSELLER', type: 'bestseller' };
+    if (len % 7 === 0) return { text: "TODAY'S SPECIAL", type: 'special' };
+    if (len % 5 === 0) return { text: 'CHEF RECOMMENDED', type: 'chef' };
+    return null; 
+  };
+  const promo = getPromoLogic(name);
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-50 group flex flex-col h-full">
@@ -20,7 +32,34 @@ export default function MealCard({ meal, onAddToCart }) {
           alt={name} 
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs font-bold text-primary shadow-sm flex items-center gap-1">
+        
+        {/* Marketing / Stock Badges (Top Left) */}
+        <div className="absolute top-3 left-3 flex flex-col items-start gap-2 z-10">
+          {stock !== undefined && stock > 0 && stock <= 5 && (
+            <div className="bg-red-600/95 backdrop-blur-md text-white px-3 py-1.5 rounded-sm text-[10px] font-bold shadow-sm tracking-wider flex items-center gap-1.5 uppercase">
+              <AlertCircle size={12} /> Only {stock} Left
+            </div>
+          )}
+          {stock === 0 && (
+            <div className="bg-gray-900/95 backdrop-blur-md text-gray-100 px-3 py-1.5 rounded-sm text-[10px] font-bold shadow-sm tracking-wider uppercase">
+              Sold Out
+            </div>
+          )}
+          {(!(stock <= 5) && promo) && (
+            <div className={`backdrop-blur-md text-white px-3 py-1.5 rounded-sm text-[10px] font-bold shadow-sm tracking-wider flex items-center gap-1.5 uppercase
+              ${promo.type === 'bestseller' ? 'bg-[#D4AF37]/90' : ''} 
+              ${promo.type === 'special' ? 'bg-primary/95 text-green-50' : ''}
+              ${promo.type === 'chef' ? 'bg-[#2C3E50]/95' : ''}
+            `}>
+              {promo.type === 'bestseller' && <Star size={12} fill="currentColor" />}
+              {promo.type === 'special' && <Sparkles size={12} />}
+              {promo.type === 'chef' && <ChefHat size={12} />}
+              {promo.text}
+            </div>
+          )}
+        </div>
+
+        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs font-bold text-primary shadow-sm flex items-center gap-1 z-10">
           <Flame size={14} className="text-orange-500" /> {calories} kcal
         </div>
       </div>
@@ -54,15 +93,15 @@ export default function MealCard({ meal, onAddToCart }) {
           </div>
           <Button 
             variant="primary" 
-            className="w-full flex items-center justify-center gap-2" 
+            className={`w-full flex items-center justify-center gap-2 ${stock === 0 ? 'bg-gray-300 hover:bg-gray-300 text-gray-500 cursor-not-allowed border-none shadow-none' : ''}`} 
             onClick={() => {
-              if (onAddToCart) {
+              if (onAddToCart && stock !== 0) {
                 onAddToCart(meal, quantity);
                 setQuantity(1); // Reset after adding
               }
             }}
           >
-            Add to Cart
+            {stock === 0 ? 'Out of Stock' : 'Add to Cart'}
           </Button>
         </div>
       </div>

@@ -15,6 +15,7 @@ import Checkout from './pages/Checkout';
 import Invoice from './pages/Invoice';
 import UserProfile from './pages/UserProfile';
 import Contact from './pages/Contact';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminOrders from './pages/AdminOrders';
@@ -67,6 +68,7 @@ function AppLayout() {
           <Route path="/invoice/:orderId" element={<Invoice />} />
           <Route path="/user/profile" element={<UserProfile />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />

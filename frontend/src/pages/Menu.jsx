@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import MealCard from '../components/MealCard';
 import CartContext from '../context/CartContext';
+import SponsoredAd from '../components/SponsoredAd';
 
 export default function Menu() {
   const [filter, setFilter] = useState('All');
@@ -84,6 +85,8 @@ export default function Menu() {
             </button>
           ))}
         </div>
+
+        <SponsoredAd className="mb-12" />
 
         {/* Loading Indicator */}
         {loading && (

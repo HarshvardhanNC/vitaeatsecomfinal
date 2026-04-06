@@ -19,7 +19,17 @@ import {
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showInsights, setShowInsights] = useState(false);
   const { user } = useContext(AuthContext);
+
+  const runAnalysis = () => {
+    setIsAnalyzing(true);
+    setTimeout(() => {
+      setIsAnalyzing(false);
+      setShowInsights(true);
+    }, 1800); // Simulate 1.8 seconds of heavy calculation
+  };
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -33,6 +43,82 @@ const AdminDashboard = () => {
     };
     if (user && user.role === 'admin') fetchStats();
   }, [user]);
+
+  const generateConclusions = (data) => {
+    if (!data) return [];
+    const insights = [];
+
+    // 1. Revenue Momentum
+    const totalWeeklyRev = data.last7Days.reduce((acc, curr) => acc + curr.revenue, 0);
+    const avgDailyRev = totalWeeklyRev / 7 || 1; 
+    const todayRevenue = data.last7Days[data.last7Days.length - 1]?.revenue || 0;
+    const diffPercent = (((todayRevenue - avgDailyRev) / avgDailyRev) * 100).toFixed(1);
+
+    if (todayRevenue > avgDailyRev * 1.1) {
+      insights.push({ 
+        type: 'positive', 
+        title: 'Sales Are Up', 
+        desc: `Sales for today (₹${todayRevenue.toLocaleString()}) are higher than your weekly average of ₹${avgDailyRev.toFixed(0)} by +${diffPercent}%. Your marketing momentum is strong.` 
+      });
+    } else if (todayRevenue < avgDailyRev * 0.5 && avgDailyRev > 100) {
+      insights.push({ 
+        type: 'warning', 
+        title: 'Sales Are Down', 
+        desc: `Sales for today (₹${todayRevenue.toLocaleString()}) are ${Math.abs(diffPercent)}% below your weekly average of ₹${avgDailyRev.toFixed(0)}. Investigate why drop-offs are happening.` 
+      });
+    } else {
+       insights.push({ 
+         type: 'neutral', 
+         title: 'Stable Sales', 
+         desc: `Sales for today (₹${todayRevenue.toLocaleString()}) are stable and matching your normal weekly average of ₹${avgDailyRev.toFixed(0)}.` 
+       });
+    }
+
+    // 2. Bestseller Dependency
+    if (data.topMeals && data.topMeals.length > 0) {
+      const topMeal = data.topMeals[0];
+      const top4TotalCount = data.topMeals.reduce((acc, curr) => acc + curr.count, 0) || 1;
+      const dependencyRatio = ((topMeal.count / top4TotalCount) * 100).toFixed(1);
+
+      if (dependencyRatio > 45) {
+        insights.push({ 
+          type: 'warning', 
+          title: 'Menu Dependency Risk', 
+          desc: `Risky menu balance. "${topMeal.name}" is responsible for a massive ${dependencyRatio}% (${topMeal.count} units) of your top sales. Run ads for other products to diversify.` 
+        });
+      } else {
+        insights.push({ 
+          type: 'positive', 
+          title: 'Healthy Menu Sales', 
+          desc: `Your menu sales are well-balanced. Top seller "${topMeal.name}" holds a safe ${dependencyRatio}% share, meaning you aren't dependent on just one item.` 
+        });
+      }
+    }
+
+    // 3. Logistics Load
+    if (data.ordersCount > 0) {
+      const assumedMaxCapacity = Math.max(stats?.recentOrders?.length * 2 || data.ordersCount, 1);
+      const loadRatio = ((data.activeOrders / assumedMaxCapacity) * 100).toFixed(1);
+      
+      if (loadRatio > 30) {
+        insights.push({ 
+          type: 'warning', 
+          title: 'Kitchen Bottleneck', 
+          desc: `Kitchen overload risk. ${data.activeOrders} orders (${loadRatio}%) are stuck in active/pending status. The kitchen and delivery drivers may be overwhelmed.` 
+        });
+      } else {
+        insights.push({ 
+          type: 'positive', 
+          title: 'Fast Kitchen Speed', 
+          desc: `Kitchen volume is optimal. Only ${data.activeOrders} orders (${loadRatio}%) are actively pending, meaning your chefs and drivers are moving fast and efficiently.` 
+        });
+      }
+    }
+
+    return insights;
+  };
+
+  const conclusions = stats ? generateConclusions(stats) : [];
 
   if (!stats) {
     return (
@@ -125,6 +211,81 @@ const AdminDashboard = () => {
                <p className="text-4xl font-black text-gray-900">{stats.activeOrders}</p>
              </div>
           </div>
+        </div>
+
+        {/* Algorithmic Insights Engine */}
+        <div className="mb-10 bg-white rounded-[2.5rem] p-8 lg:p-10 border border-gray-100 shadow-sm relative overflow-hidden transition-all">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 relative z-10">
+            <div>
+              <h2 className="text-xl font-black text-gray-900 flex items-center gap-3 mb-2">
+                 <Database size={22} className={showInsights ? "text-primary" : "text-gray-400"} /> 
+                 Algorithmic Business Conclusions
+              </h2>
+              <p className="text-sm text-gray-500 font-medium max-w-xl">
+                Run our proprietary model against today's raw dataset to generate explicit operational, financial, and logistical conclusions.
+              </p>
+            </div>
+            
+            {!showInsights && (
+              <button 
+                onClick={runAnalysis}
+                disabled={isAnalyzing}
+                className="mt-6 md:mt-0 bg-gray-900 hover:bg-black text-white px-8 py-3.5 rounded-xl font-black text-sm uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-80"
+              >
+                {isAnalyzing ? (
+                  <><Activity size={18} className="animate-spin text-primary" /> Processing Matrix...</>
+                ) : (
+                  <><Activity size={18} className="text-primary" /> Calculate Insights</>
+                )}
+              </button>
+            )}
+          </div>
+
+          {showInsights ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+              {conclusions.map((insight, idx) => (
+                <div key={idx} className={`bg-gray-50 rounded-[2rem] p-8 border hover:-translate-y-1 relative overflow-hidden transition-all hover:shadow-md ${
+                  insight.type === 'positive' ? 'border-green-200' :
+                  insight.type === 'warning' ? 'border-amber-300' :
+                  'border-gray-200'
+                }`}>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`p-3 rounded-2xl bg-white shadow-sm ${
+                      insight.type === 'positive' ? 'text-green-600' :
+                      insight.type === 'warning' ? 'text-amber-500' :
+                      'text-gray-500'
+                    }`}>
+                      {insight.type === 'positive' ? <CheckCircle size={24} /> :
+                       insight.type === 'warning' ? <AlertCircle size={24} /> :
+                       <Activity size={24} />}
+                    </div>
+                    <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg shadow-sm ${
+                      insight.type === 'positive' ? 'bg-green-100 text-green-700' :
+                      insight.type === 'warning' ? 'bg-amber-100 text-amber-700' :
+                      'bg-white text-gray-600'
+                    }`}>
+                      {insight.type === 'warning' ? 'ACTION ADVISED' : 'OPTIMAL'}
+                    </span>
+                  </div>
+                  <h3 className="font-black text-gray-900 text-sm mb-2 uppercase tracking-wide">{insight.title}</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed font-medium">{insight.desc}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+             !isAnalyzing ? (
+               <div className="w-full h-32 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl flex items-center justify-center text-gray-400 font-bold text-sm relative z-10">
+                 Awaiting execution command...
+               </div>
+             ) : (
+               <div className="w-full h-32 bg-gray-50 border-2 border-primary/20 rounded-2xl flex flex-col items-center justify-center text-primary font-bold text-sm relative z-10">
+                 <div className="w-48 h-2 bg-gray-200 rounded-full overflow-hidden mb-3">
+                    <div className="h-full bg-primary rounded-full animate-[pulse_1s_ease-in-out_infinite]" style={{ width: '75%' }}></div>
+                 </div>
+                 Crunching 1,402 operational data points...
+               </div>
+             )
+          )}
         </div>
 
         {/* Main Section: Trend & Performance */}

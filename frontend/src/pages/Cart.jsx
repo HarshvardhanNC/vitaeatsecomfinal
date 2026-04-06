@@ -4,6 +4,7 @@ import CartContext from '../context/CartContext';
 import AuthContext from '../context/AuthContext';
 import { Trash2, ArrowRight, ShoppingCart } from 'lucide-react';
 import Button from '../components/Button';
+import SponsoredAd from '../components/SponsoredAd';
 
 const Cart = () => {
   const { cartItems, removeFromCart } = useContext(CartContext);
@@ -73,6 +74,8 @@ const Cart = () => {
               </div>
             );
           })}
+          
+          <SponsoredAd className="mt-4" />
         </div>
         
         {/* Order Summary */}
