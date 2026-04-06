@@ -58,6 +58,10 @@ const orderSchema = new mongoose.Schema({
   },
   receiptId: {
     type: String
+  },
+  sharedRewardClaimed: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true

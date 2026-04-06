@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
-import { CheckCircle, Printer, ArrowLeft } from 'lucide-react';
+import { CheckCircle, Printer, ArrowLeft, Share2 } from 'lucide-react';
 
 const Invoice = () => {
   const { orderId } = useParams();
@@ -31,6 +31,25 @@ const Invoice = () => {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleShare = async () => {
+    if (!order || order.sharedRewardClaimed) return;
+    
+    // 1. Open WhatsApp
+    const message = `I just ordered a healthy meal from VitaEats! Check them out: https://vitaeatsecomfinal.vercel.app/`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    
+    // 2. Claim Reward
+    try {
+      const config = { headers: { Authorization: `Bearer ${user.token}` } };
+      await axios.post(`/api/orders/${orderId}/share`, {}, config);
+      
+      setOrder({...order, sharedRewardClaimed: true});
+      alert('₹5 has been added to your wallet successfully!');
+    } catch (err) {
+      console.error('Error claiming reward', err);
+    }
   };
 
   return (
@@ -137,6 +156,24 @@ const Invoice = () => {
         </div>
         
         <div style={{ marginTop: '4rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
+          
+          {/* Share & Earn Section */}
+          <div className="mb-6 p-6 bg-green-50 rounded-2xl border border-green-100 flex flex-col items-center no-print" style={{ maxWidth: '400px', margin: '0 auto 2rem auto' }}>
+            <h4 className="text-xl font-bold text-green-800 mb-2">🎁 Share & Earn ₹5!</h4>
+            <p className="text-green-700 mb-4 text-sm">Share your healthy choices with friends on WhatsApp and instantly get ₹5 credited to your VitaEats Wallet!</p>
+            <button 
+              onClick={handleShare}
+              disabled={order.sharedRewardClaimed}
+              className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold text-white transition-all shadow-lg ${order.sharedRewardClaimed ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 hover:shadow-green-900/20'}`}
+              style={!order.sharedRewardClaimed ? { transform: 'scale(1)', transition: 'transform 0.2s' } : {}}
+              onMouseOver={(e) => { if(!order.sharedRewardClaimed) e.currentTarget.style.transform = 'translateY(-2px)' }}
+              onMouseOut={(e) => { if(!order.sharedRewardClaimed) e.currentTarget.style.transform = 'translateY(0)' }}
+            >
+              <Share2 size={18} />
+              {order.sharedRewardClaimed ? 'Reward Claimed ✓' : 'Share on WhatsApp & Earn ₹5'}
+            </button>
+          </div>
+
           <p>Thank you for choosing VitaEats for your healthy meals!</p>
           <p>For any queries, please contact support@vitaeats.com</p>
         </div>

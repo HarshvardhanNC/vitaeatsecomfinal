@@ -100,4 +100,38 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-module.exports = { addOrderItems, getMyOrders, getOrders, updateOrderStatus };
+// @desc    Claim 5 rs reward for sharing on WhatsApp
+// @route   POST /api/orders/:id/share
+// @access  Private
+const claimShareReward = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    if (order.user.toString() !== req.user._id.toString()) {
+       return res.status(403).json({ message: 'Not authorized for this order' });
+    }
+
+    if (order.sharedRewardClaimed) {
+      return res.status(400).json({ message: 'Reward already claimed for this order' });
+    }
+
+    // Give 5 rs to user
+    const User = require('../models/User');
+    const user = await User.findById(req.user._id);
+    user.walletBalance += 5;
+    await user.save();
+
+    // Mark as claimed
+    order.sharedRewardClaimed = true;
+    await order.save();
+
+    res.json({ message: 'Reward claimed successfully', walletBalance: user.walletBalance, order });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { addOrderItems, getMyOrders, getOrders, updateOrderStatus, claimShareReward };

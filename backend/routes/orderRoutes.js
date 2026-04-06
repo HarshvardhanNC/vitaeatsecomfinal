@@ -6,5 +6,6 @@ const { protect, isAdmin } = require('../middleware/authMiddleware');
 router.route('/').post(protect, addOrderItems).get(protect, isAdmin, getOrders);
 router.route('/myorders').get(protect, getMyOrders);
 router.route('/:id/status').put(protect, isAdmin, updateOrderStatus);
+router.route('/:id/share').post(protect, require('../controllers/orderController').claimShareReward);
 
 module.exports = router;
